@@ -110,6 +110,8 @@ function Button({ children, ...rest }: any) {
 export default function App() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [connected, setConnected] = useState(false);
+  const [startStreaming, setStartStreaming] = useState(false);
+  const [stopStreaming, setStopStreaming] = useState(false);
   const [enabledCheckers, setEnabledCheckers] = useState({
     audio: false,
     video: false,
@@ -183,6 +185,57 @@ export default function App() {
         >
           Toggle Audio Preview
         </Button>
+
+        <Button
+          disabled={!connected}
+          onClick={() => {
+            obs
+          .call('SetStreamServiceSettings', {
+            streamServiceType: 'rtmp_custom',
+            streamServiceSettings:{
+              server: "rtmp://65.2.88.0:1935/live/2023-09-14-07-23-39",
+              key:"2023-09-14-07-23-39"
+            }
+          }).then((res)=>{
+            console.log('response in here', res);
+            setStartStreaming(true);
+          })
+         
+          }}
+        >
+          SET STREAM SETTINGS
+        </Button>
+
+        {startStreaming && <Button
+          disabled={!connected}
+          onClick={() => {
+            obs
+          .call('StartStream').then((res)=>{
+
+            console.log('response in here start streaming', res);
+            setStopStreaming(true);
+            setStartStreaming(false);
+          })
+         
+          }}
+        >
+          Start Streaming
+        </Button>}
+        {stopStreaming && <Button
+          disabled={!connected}
+          onClick={() => {
+            obs
+          .call('StopStream').then((res)=>{
+
+            console.log('response in here stop streaming', res);
+            setStopStreaming(false);
+            setStartStreaming(true);
+          })
+         
+          }}
+        >
+          Stop Streaming
+        </Button>}
       </div>
       {enabledCheckers.video && <VideoChecker />}
       {enabledCheckers.audio && <AudioChecker />}
