@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import OBSWebSocket, { EventSubscription } from 'obs-websocket-js';
 import './App.css';
 
+
 const obs = new OBSWebSocket();
 
 const connectToObs = async (cs: string) => {
@@ -134,6 +135,10 @@ export default function App() {
     };
   }, []);
 
+  const onDownload = ()=>{
+    window.electron.ipcRenderer.sendMessage(('download-url' as any), "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf");
+  }
+
   return (
     <div className="flex flex-col p-8 gap-4 items-center">
       <input
@@ -143,6 +148,13 @@ export default function App() {
         placeholder="Enter OBS WebSocket Server address"
       />
       <div className="flex gap-2 justify-center flex-wrap items-center">
+      <Button
+          onClick={() => {
+            onDownload();
+          }}
+        >
+          Download PDF
+        </Button>
         <Button
           disabled={connected}
           onClick={() => {
@@ -236,6 +248,16 @@ export default function App() {
         >
           Stop Streaming
         </Button>}
+        <Button
+          onClick={() => {
+            window.electron.ipcRenderer.sendMessage(('shell-url' as any), "file://Users/rishabhjain/Downloads/dummy.pdf");
+ 
+            console.log('/Users/rishabhjain/Downloads/dummy.pdf')
+            // shell.openPath('/Users/rishabhjain/Downloads/dummy.pdf');
+          }}
+        >
+          Open Third Party App
+        </Button>
       </div>
       {enabledCheckers.video && <VideoChecker />}
       {enabledCheckers.audio && <AudioChecker />}

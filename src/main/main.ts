@@ -14,6 +14,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { download } from 'electron-dl';
+
 
 class AppUpdater {
   constructor() {
@@ -25,11 +27,31 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
+ipcMain.on('download-url', (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+  event.reply('ipc-example', msgTemplate(arg));
+  mainWindow?.webContents.downloadURL(arg);
+
+  // download((BrowserWindow.getFocusedWindow() as any), arg, {directory: "/Users/rishabhjain/Documents/"})
+  //           .then(dl => console.log("download complete", dl.getSavePath()));
 });
+ipcMain.on('shell-url', (event, arg) => {
+  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
+  console.log(msgTemplate(arg));
+  event.reply('ipc-example', msgTemplate(arg));
+  // mainWindow?.webContents.downloadURL(arg);
+  shell.openPath(arg);
+  // download((BrowserWindow.getFocusedWindow() as any), arg, {directory: "/Users/rishabhjain/Documents/"})
+  //           .then(dl => console.log("download complete", dl.getSavePath()));
+});
+
+ipcMain.on('ipc-example', async (event, arg) => {
+  // const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
+  // console.log(msgTemplate(arg));
+  // event.reply('ipc-example', msgTemplate('pong'));
+});
+
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -127,11 +149,19 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
+      if (mainWindow === null) createWindow()
+      ;
     });
+    // download((BrowserWindow.getFocusedWindow() as any), "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", {directory:"c:/"})
+
+  //   ipcMain.on("download", (event, info) => {
+  //     download((BrowserWindow.getFocusedWindow() as any), info.url, info.properties)
+  //         .then(dl => (window as any).webContents.send("download-complete", dl.getSavePath()));
+  // });
   })
   .catch(console.log);
